@@ -1,0 +1,83 @@
+var mcqs;
+
+function createMCQForm(mcqs) {
+  try {
+    var form = FormApp.create('Generated MCQs');
+    form.addSectionHeaderItem().setTitle('Multiple Choice Questions');
+
+    for (var i = 0; i < mcqs.length; i++) {
+      var mcq = mcqs[i];
+      var questionStem = mcq[0];
+      var answerChoices = mcq[1];
+
+      var question = form.addMultipleChoiceItem();
+      question.setTitle(questionStem);
+
+      var choices = answerChoices.map(function(choice) {
+        return question.createChoice(choice);
+      });
+
+      question.setChoices(choices);
+    }
+
+    // Setup trigger for email notification
+    setupTrigger(form);
+
+    return form.getPublishedUrl();
+  } catch (error) {
+    return 'Error creating form: ' + error.message;
+  }
+}
+
+function doGet(e) {
+  try {
+    var formUrl = createMCQForm(mcqs);
+    var htmlOutput = HtmlService.createHtmlOutput('<meta http-equiv="refresh" content="0; url=' + formUrl + '">');
+    return htmlOutput;
+  } catch (error) {
+    return HtmlService.createHtmlOutput('Error: ' + error.message);
+  }
+}
+
+function doPost(e) {
+  try {
+    mcqs = JSON.parse(e.postData.contents);
+    var formUrl = createMCQForm(mcqs);
+    return ContentService.createTextOutput(formUrl);
+  } catch (error) {
+    return ContentService.createTextOutput('Error: ' + error.message);
+  }
+}
+
+function onFormSubmit(e) {
+
+  var items = e.response.getItemResponses();
+  items.forEach(function(item) {
+    message += item.getItem().getTitle() + ': ' + item.getResponse() + '\n';
+  });
+
+  // Log the message to see if it's constructed correctly
+  Logger.log(message);
+  
+  // Send email
+  try {
+    MailApp.sendEmail(email, subject, message);
+  } catch (error) {
+    Logger.log("Email failed to send: " + error.message);
+  }
+}
+
+function setupTrigger(form) {
+  var triggers = ScriptApp.getProjectTriggers();
+  
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getEventType() === ScriptApp.EventType.FORM_SUBMIT) {
+      return; // Trigger already set up
+    }
+  }
+
+  ScriptApp.newTrigger('onFormSubmit')
+    .forForm(form)
+    .onFormSubmit()
+    .create();
+}
