@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Form Created</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Google Form Created</h1>
+        <p>Your MCQs have been successfully added to a Google Form.</p>
+        <a href="{{ form_url }}" target="_blank" class="btn btn-primary">Open the Google Form</a>
+    </div>
+</body>
+</html>
