@@ -23,6 +23,26 @@ python -m spacy download en_core_web_sm
 Upload a .pdf, .txt, or enter text manually.
 Select the number of MCQs to generate.
 
+## 🧪 Example Workflow
+
+**Input Text**:
+
+```
+The mitochondria is the powerhouse of the cell. It generates most of the cell's supply of ATP.
+```
+
+**Generated MCQ**:
+
+```
+Q: The ________ is the powerhouse of the cell.
+A. nucleus  
+B. ribosome  
+C. mitochondria ✅  
+D. cytoplasm
+```
+
+---
+
 The app:
 Extracts sentences and nouns using spaCy
 Forms a blanked sentence for the question stem
@@ -36,7 +56,11 @@ You must create and deploy a Google Apps Script web app to receive and process M
 
 Replace this placeholder URL in app.py:
 
+
+```python
 script_url = "https://script.google.com/macros/s/your-script-id/exec"
+```
+
 Your script should accept POST requests with JSON data and return a Google Form link.
 
 🔧 Running the App
@@ -47,9 +71,16 @@ Then open http://127.0.0.1:5000 in your browser.
 📃 License
 MIT License
 
-🙏 Acknowledgments
-spaCy
-Flask
-PyPDF2
-Bootstrap
-Google Apps Script for Form automation
+---
+
+## 🙏 Acknowledgments
+
+* [spaCy](https://spacy.io/)
+* [Flask](https://flask.palletsprojects.com/)
+* [PyPDF2](https://pypi.org/project/PyPDF2/)
+* [Bootstrap](https://getbootstrap.com/)
+* [Google Apps Script](https://script.google.com/)
+
+---
+
+
