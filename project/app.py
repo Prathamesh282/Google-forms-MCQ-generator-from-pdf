@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, abort
 from flask_bootstrap import Bootstrap
 import spacy
 from collections import Counter
@@ -6,14 +6,21 @@ import random
 import requests
 import json
 from PyPDF2 import PdfReader
+from typing import List, Tuple, Optional
 
 app = Flask(__name__)
 Bootstrap(app)
 
-# Load English tokenizer, tagger, parser, NER, and word vectors
-nlp = spacy.load("en_core_web_sm")
+ALLOWED_EXTENSIONS = {'pdf', 'txt'}
 
-def generate_mcqs(text, num_questions=5):
+# Load English tokenizer, tagger, parser, NER, and word vectors
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    raise RuntimeError("spaCy model 'en_core_web_sm' not found")
+
+
+def generate_mcqs(text: str, num_questions: int=5) -> List[Tuple[str, List[str], str]]:
     if text is None:
         return []
 
@@ -123,19 +130,22 @@ def index():
 
     return render_template('index.html')
 
-def process_pdf(file):
+def process_pdf(file) -> str:
     # Initialize an empty string to store the extracted text
     text = ""
-
-    # Create a PyPDF2 PdfReader object
-    pdf_reader = PdfReader(file)
-
-    # Loop through each page of the PDF
-    for page_num in range(len(pdf_reader.pages)):
-        # Extract text from the current page
-        page_text = pdf_reader.pages[page_num].extract_text()
-        # Append the extracted text to the overall text
-        text += page_text
+    try:
+        # Create a PyPDF2 PdfReader object
+        pdf_reader = PdfReader(file)
+    
+        # Loop through each page of the PDF
+        for page_num in range(len(pdf_reader.pages)):
+            # Extract text from the current page
+            page_text = pdf_reader.pages[page_num].extract_text()
+            # Append the extracted text to the overall text
+            text += page_text
+    except Exception as e:
+        # Log error in real app; here we abort with 400
+        abort(400, description=f"Failed to process PDF: {e}")
 
     return text
 
